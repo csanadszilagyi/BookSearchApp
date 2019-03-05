@@ -1,0 +1,8 @@
+<div class="thumb-img-wrapper align-self-center mr-3">
+    <div *ngIf="!hasImage || !state.loaded" class="bg"></div>
+    <!-- <ng-container *ngIf="hasImage"> -->
+    <img [hidden]="!state.loaded" [src]="src" [alt]="alt" (load)="onLoad()" (error)="onError()">
+
+    <!-- </ng-container> -->
+</div>
+<!-- {{ state.loaded }} -->
