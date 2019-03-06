@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, empty, throwError, of } from 'rxjs';
-import { switchMap, map, tap, catchError } from 'rxjs/operators';
+import { switchMap, mergeMap, map, tap, catchError, throttleTime, concatMap } from 'rxjs/operators';
 
 import { InputData, KeywordParams } from './data-structures';
 import { BookSerializer } from 'src/app/seralizer/BookSeralizer';
@@ -24,7 +24,6 @@ export class BooksApiService {
   private readonly API_URL: string = 'https://www.googleapis.com/books/v1/volumes';
 
   private readonly MAX_RESULTS: number = 40;
-  private startIndex: number = 0;
 
   private keywordStr: string = '';
   // fields the response should cotnain
@@ -86,36 +85,40 @@ export class BooksApiService {
     return true;
   }
 
-  searchNew(input: InputData) : Observable<any> {
-    this.startIndex = 0;
+  list(input: InputData, startPosition: number = 0) : Observable<Book[]> {
     if (this.generateQuery(input)) {
-      return this.search(this.keywordStr);
+      return this.search(this.keywordStr, startPosition);
     }
     return throwError('Could not generate query.');
   }
 
-  searchPaginated(input: InputData) : Observable<any> {
-    this.startIndex += 1;
+  /*
+  searchPaginated(input: InputData, start: number) : Observable<any> {
+    this.startIndex = start;
     return this.search(this.keywordStr);
   }
+  */
 
   /*
    * Get list
   */
-  protected search(query: string): Observable<any> {
+  protected search(query: string, startPosition: number): Observable<any> {
     const params: HttpParams = new HttpParams()
       .set('q', query)
       .set('fields', this.responseFieldsStr) // fields the response should contain
-      .set('startIndex', `${this.startIndex}`)
+      .set('startIndex', `${startPosition}`)
       .set('maxResults', `${this.MAX_RESULTS}`)
       .set('key', this.API_KEY);
 
     return this.http.get<Book[]>(this.API_URL, {params}).pipe(
       map( (data: any) => {
-        const books = this.convertCollection(data.items);
-        this.startIndex += books.length;
-        console.log(`START INDEX: ${this.startIndex}`);
-        return books;
+        if (data.items) {
+          const books = this.convertCollection(data.items);
+          // this.startIndex += books.length;
+          // console.log(`START INDEX: ${this.startIndex}`);
+          return books;
+        }
+        return throwError('data.items is not found.');
       }),
       // tap(data => console.log(data)),
       catchError(error => this.handleError(error))

@@ -1,7 +1,7 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, OnInit, AfterViewInit} from '@angular/core';
 import { BooksApiService } from './services/BooksApi/books-api.service';
-import { Observable, of, Subject, BehaviorSubject } from 'rxjs';
-import { switchMap, mergeMap, throttleTime, tap } from 'rxjs/operators';
+import { Observable, of, Subject, BehaviorSubject, empty } from 'rxjs';
+import { switchMap, mergeMap, throttleTime, tap, debounceTime, scan, reduce, map } from 'rxjs/operators';
 
 import { concat as _concat } from 'lodash';
 
@@ -13,25 +13,64 @@ import { Book } from './models/book.model';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
 
-  books: Book[] = [];
+  // books: Book[] = [];
 
   searchInputData: InputData = new InputData();
   theEnd: boolean = false;
 
-  inputState$: Subject<InputData> = new BehaviorSubject<InputData>(null);
+  offsetState$: BehaviorSubject<number> = new BehaviorSubject<number>(null);
 
-  constructor(private booksService: BooksApiService ) {}
+  allBooksState$: BehaviorSubject<Book[]> = new BehaviorSubject<Book[]>([]);
+  allBooksObs: Observable<Book[]>;
+
+  constructor(private booksService: BooksApiService ) {
+    
+  }
 
   ngOnInit() {
   
   }
 
-  public paginatedSearch() {
+  ngAfterViewInit() {
 
-    this.booksService.searchPaginated(this.searchInputData).pipe(
-      tap(res => (res.length ? null : (this.theEnd = true)))
+    this.allBooksObs = this.offsetState$.pipe(
+      throttleTime(500),
+      mergeMap(offset => {
+        console.log(`offset: ${offset}`);
+        if (offset === null){
+          return empty();
+        }
+        return this.booksService.list(this.searchInputData, offset).pipe(
+          tap(data => {
+            if(!data || !data.length) {
+              this.theEnd = true;
+            }
+
+            const concat = _concat(this.allBooksState$.getValue(), data);
+            this.allBooksState$.next(concat);
+          }),
+        );
+      }),
+      map(data => {
+        
+        return this.allBooksState$.getValue();
+      })
+    );
+  }
+
+  public paginatedSearch(index) {
+
+    this.offsetState$.next(index);
+
+  /*
+    this.booksService.searchPaginated(this.searchInputData, index).pipe(
+      tap(res => {
+        if(res.length === 0) {
+          this.theEnd = true;
+        }
+      }),
     )
     .subscribe(
       (result: Book[]) => {
@@ -48,20 +87,26 @@ export class AppComponent implements OnInit {
         console.error(error);
       }
     );
+    */
   }
 
   public formSearch() {
-    this.theEnd = false;
+    
+    this.allBooksState$.next([]);
+    this.offsetState$.next(0);
+
+    /*
     this.booksService.searchNew(this.searchInputData)
       .subscribe(
         (result: Book[]) => {
           this.books = result;
+          this.theEnd = false;
         },
         (error: any) => {
           console.log(error);
         }
     );
-    
+    */
   }
 
 

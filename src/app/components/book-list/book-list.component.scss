@@ -1,7 +1,11 @@
 cdk-virtual-scroll-viewport {
     height: 65vh;
     .card {
-        height: 100px;
+        height: 80px;
+        border: 0;
+    }
+    .card .card-body {
+        padding: 0.25rem;
     }
     .cdk-virtual-scroll-content-wrapper {
         padding: 15px !important;

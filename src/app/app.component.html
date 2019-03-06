@@ -3,7 +3,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Google Books Api</h5>
+                    <h3 class="card-title">Google Books Api</h3>
                     <form (ngSubmit)="formSearch()" #searhForm="ngForm" autocomplete="nope">
                         <div class="form-row">
                             <div class="col-4">
@@ -23,7 +23,10 @@
             </div>
             <div class="card mt-3">
                 <div class="card-body">
-                    <app-book-list [books]="books" [ended]="theEnd" (scrollEnd)="paginatedSearch()"></app-book-list>
+                    <ng-container *ngIf="allBooksObs | async as books">
+                        <app-book-list [books]="books" [ended]="theEnd" (scrollEnd)="paginatedSearch($event)"></app-book-list>
+                    </ng-container>
+
                 </div>
             </div>
         </div>

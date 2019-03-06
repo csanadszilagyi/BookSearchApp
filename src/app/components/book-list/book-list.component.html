@@ -14,21 +14,27 @@
     </cdk-virtual-scroll-viewport>
 </ul> -->
 
-<cdk-virtual-scroll-viewport itemSize="100" (scrolledIndexChange)="onIndexChanged($event)">
-    <ng-container *cdkVirtualFor="let book of books; let i = index; trackBy: trackByIndex">
-        <div class="card mb-3">
-            <div class="row no-gutters">
-                <div class="col-md-1">
-                    <app-thumb-img [hasImage]="book.smallThumbnailUrl !== ''" [src]="book.smallThumbnailUrl" [alt]="'thumbnail'"></app-thumb-img>
-                </div>
-                <div class="col-md-11">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ book.title }}</h5>
-                        <p class="card-text" *ngIf="book.description">{{ book.description | slice:0:60 }} <span class="more-placeholder" *ngIf="book.description.length > 60">...</span></p>
-                        <!-- <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p> -->
-                    </div>
+<cdk-virtual-scroll-viewport itemSize="80" (scrolledIndexChange)="onIndexChanged($event, books.length)">
+    <!--  <ng-container > -->
+    <div class="card mb-3" *cdkVirtualFor="let book of books; let i = index; trackBy: trackByIndex(i)">
+        <div class="row no-gutters">
+            <div class="col-md-1">
+                <h4>{{ i }}</h4>
+            </div>
+            <div class="col-md-1">
+                <app-thumb-img [src]="book.smallThumbnailUrl" [alt]="'thumbnail'"></app-thumb-img>
+            </div>
+            <div class="col-md-10">
+                <div class="card-body">
+                    <h5 class="card-title">{{ book.title }}</h5>
+                    <p class="card-text" *ngIf="book.description">
+                        {{ book.description | slice:0:60 }}
+                        <span class="more-placeholder" *ngIf="book.description.length > 60">...</span>
+                    </p>
+                    <!-- <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p> -->
                 </div>
             </div>
         </div>
-    </ng-container>
+    </div>
+    <!-- </ng-container> -->
 </cdk-virtual-scroll-viewport>

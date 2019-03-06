@@ -6,6 +6,7 @@ export class BookSerializer implements ISerializer<Book> {
 
         const vol = responseItem.volumeInfo;
         return new Book(
+            -1,
             vol.title || '',
             vol.subtitle || '',
             vol.authors || '',

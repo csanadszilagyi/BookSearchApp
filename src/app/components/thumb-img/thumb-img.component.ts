@@ -1,6 +1,10 @@
 import { Component, OnInit, ElementRef, ChangeDetectorRef, 
   ChangeDetectionStrategy, ViewEncapsulation, Input } from '@angular/core';
-import { Statement } from '@angular/compiler';
+
+interface ImgState {
+  loaded?: boolean;
+  visible?: boolean;
+}
 
 @Component({
   selector: 'app-thumb-img',
@@ -11,13 +15,24 @@ import { Statement } from '@angular/compiler';
 })
 export class ThumbImgComponent implements OnInit {
 
-  @Input() src: string;
-  @Input() alt: string;
-  @Input() hasImage: boolean;
+  _src: string = '';
+  @Input() alt: string = '';
 
-  private state: any = {
-    visible: true, // not used
-    loaded: false
+
+  @Input()
+  set src(src: string) {
+    this._src = (src && src.trim()) || '';
+    if (!this._src.length) {
+      console.log('no src');
+      this.setState({visible: false});
+    }
+  }
+ 
+  get src(): string { return this._src; }
+
+  private state: ImgState = {
+    loaded: false,
+    visible: false
   };
 
   constructor(private el: ElementRef, private cd: ChangeDetectorRef) {}
@@ -25,18 +40,17 @@ export class ThumbImgComponent implements OnInit {
   ngOnInit() {
   }
 
-  private setState(key, value) {
-    this.state = {...this.state, [key]: value};
+  private setState(newState: ImgState) {
+    this.state = {...this.state, ...newState};
     this.cd.detectChanges();
   }
 
   onLoad(){
-    this.setState('loaded', true);
+    this.setState({loaded: true, visible: true});
   }
 
   onError() {
-    console.log('img load error');
-    this.setState('loaded', false);
+    this.setState({loaded: true, visible: false});
   }
 
 
