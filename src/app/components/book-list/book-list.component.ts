@@ -1,28 +1,25 @@
-import { Component, OnInit, Input, ViewChild, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, Input, ViewChild, Output, EventEmitter } from '@angular/core';
 import { Book } from 'src/app/models/book.model';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-book-list',
   templateUrl: './book-list.component.html',
-  styleUrls: ['./book-list.component.scss']
+  styleUrls: ['./book-list.component.scss'],
 })
-export class BookListComponent implements OnInit, OnDestroy {
+export class BookListComponent {
+
+  readonly MAX_DESC_LEN: number = 60; // maxium allowed number of caharacters to be shown in the description (if exists)
 
   private booksState$ = new BehaviorSubject<Book[]>([]);
-  private bookList: Book[] = [];
-  private subscription: Subscription;
 
+  @Input() books: Book[];
+  /*
   // change data to use getter and setter
   @Input()
   set books(newData: Book[]) {
       // set the latest value for booksState$ BehaviorSubject
-      if (newData.length <= 1) {
-        this.scrollToIndex(0);
-      }
-
-      console.log('books changed');
       this.booksState$.next(newData);
   };
 
@@ -30,29 +27,14 @@ export class BookListComponent implements OnInit, OnDestroy {
       // get the latest value from booksState$ BehaviorSubject
       return this.booksState$.getValue();
   }
-
+  */
   @Input() ended: boolean;
   @Output() scrollEnd = new EventEmitter<number>();
 
   @ViewChild(CdkVirtualScrollViewport)
   viewport: CdkVirtualScrollViewport;
 
-  constructor() { }
-
-  ngOnInit() {
-      // now we can subscribe to it, whenever input changes, 
-      // we will run our grouping logic
-      /*
-      this.subscription = this.booksState$
-          .subscribe(v => {
-              this.bookList = this.books;
-          });
-      */
-  }
-
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
-  }
+  constructor() {}
 
   scrollToIndex(index: number) {
     this.viewport.scrollToIndex(index);
@@ -60,34 +42,27 @@ export class BookListComponent implements OnInit, OnDestroy {
 
   onIndexChanged(event, i) {
 
-    console.log(`start index will be: ${i}`);
     if (this.ended) {
-      console.log('SCROLL ENDED');
       return;
     }
-    /*
-    console.log($event);
-    console.log('index changed');
-    console.log(this.viewport)
-    */
 
     const end = this.viewport.getRenderedRange().end;
     const total = this.viewport.getDataLength();
-
-    // console.log(`end: ${end}; total: ${total}`);
-    
-    // console.log(`${end}, '>=', ${total}`);
     if (end === total) {
-      /*console.log('EMIT');
-      console.log(`end: ${end}; total: ${total}`);
-      console.log(this.viewport);*/
       this.scrollEnd.emit(i);
-
     }
-    
   }
 
   trackByIndex(i: number) {
     return i;
+  }
+
+  // Some concated display information to be shown. New properties can be easily added.
+  getInfos(book: Book): string {
+    return [
+      book.authors, 
+      book.publishedDate
+    ].filter(v => v !== '')
+     .join(' - ');
   }
 }

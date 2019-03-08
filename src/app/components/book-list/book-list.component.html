@@ -1,37 +1,42 @@
-<!-- <ul class="list-unstyled">
-    <cdk-virtual-scroll-viewport itemSize="80" (scrolledIndexChange)="onIndexChanged($event)">
-        <ng-container *cdkVirtualFor="let book of books; let i = index; trackBy: trackByIndex">
-            <li class="media mb-3">
-
-                <app-thumb-img [hasImage]="book.smallThumbnailUrl !== ''" [src]="book.smallThumbnailUrl" [alt]="'thumbnail'"></app-thumb-img>
-
-                <div class="media-body">
-                    <h5 class="mt-0 mb-1">{{ book.title }}</h5>
-                    <p *ngIf="book.description">{{ book.description | slice:0:60 }}...</p>
-                </div>
-            </li>
-        </ng-container>
-    </cdk-virtual-scroll-viewport>
-</ul> -->
-
-<cdk-virtual-scroll-viewport itemSize="80" (scrolledIndexChange)="onIndexChanged($event, books.length)">
+<cdk-virtual-scroll-viewport itemSize="120" (scrolledIndexChange)="onIndexChanged($event, books.length)">
     <!--  <ng-container > -->
-    <div class="card mb-3" *cdkVirtualFor="let book of books; let i = index; trackBy: trackByIndex(i)">
+    <div class="card mb-3" *cdkVirtualFor="let book of books; let i = index; trackBy: trackByIndex">
         <div class="row no-gutters">
-            <div class="col-md-1">
+            <!--             <div class="col-md-1">
                 <h4>{{ i }}</h4>
+            </div> -->
+            <div class="col-xl-1 col-md-2 col-sm-2 col-3">
+
+                <ng-container *ngIf="book.previewLink; then imgLink; else img">
+                </ng-container>
+
+                <ng-template #imgLink>
+                    <a target="_blank" href="{{ book.previewLink }}">
+                        <app-thumb-img [src]="book.smallThumbnailUrl" [alt]="'thumbnail'"></app-thumb-img>
+                    </a>
+                </ng-template>
+
+                <ng-template #img>
+                    <app-thumb-img [src]="book.smallThumbnailUrl" [alt]="'thumbnail'"></app-thumb-img>
+                </ng-template>
+
             </div>
-            <div class="col-md-1">
-                <app-thumb-img [src]="book.smallThumbnailUrl" [alt]="'thumbnail'"></app-thumb-img>
-            </div>
-            <div class="col-md-10">
+            <div class="col-xl-11 col-md-10 col-sm-10 col-9">
                 <div class="card-body">
                     <h5 class="card-title">{{ book.title }}</h5>
-                    <p class="card-text" *ngIf="book.description">
-                        {{ book.description | slice:0:60 }}
-                        <span class="more-placeholder" *ngIf="book.description.length > 60">...</span>
+                    <h6 *ngIf="book.subtitle" class="subtitle font-italic font-weight-normal prefix-line">
+                        {{ book.subtitle }}
+                    </h6>
+                    <p class="card-text mb-0" *ngIf="book.description">
+                        {{ book.description | slice:0:MAX_DESC_LEN }}
+                        <span class="more-placeholder" *ngIf="book.description.length > MAX_DESC_LEN">...</span>
                     </p>
-                    <!-- <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p> -->
+                    <p class="card-text">
+                        <a *ngIf="book.previewLink" target="_blank" href="{{ book.previewLink }}">Preview</a>
+                        <small class="text-muted prefix-line">
+                            {{ getInfos(book) }}
+                        </small>
+                    </p>
                 </div>
             </div>
         </div>

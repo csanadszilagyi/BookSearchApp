@@ -111,13 +111,15 @@
 
 export class Book {
     constructor(
-        public id?: number,
         public title?: string,
         public subtitle?: string,
-        public authors?: string[],
+        public authors?: string,
         public description?: string,
+        public publishedDate? :string,
+        public pageCount?: number | null,
         public previewLink?: string,
-        public averageRating?: number | '',
+        public infoLink?: string,
+        public averageRating?: number | null,
         public categories?: string[],
         public smallThumbnailUrl?: string
     ) {}
