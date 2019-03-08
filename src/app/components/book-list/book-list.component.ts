@@ -12,22 +12,7 @@ export class BookListComponent {
 
   readonly MAX_DESC_LEN: number = 60; // maxium allowed number of caharacters to be shown in the description (if exists)
 
-  private booksState$ = new BehaviorSubject<Book[]>([]);
-
   @Input() books: Book[];
-  /*
-  // change data to use getter and setter
-  @Input()
-  set books(newData: Book[]) {
-      // set the latest value for booksState$ BehaviorSubject
-      this.booksState$.next(newData);
-  };
-
-  get books(): Book[] {
-      // get the latest value from booksState$ BehaviorSubject
-      return this.booksState$.getValue();
-  }
-  */
   @Input() ended: boolean;
   @Output() scrollEnd = new EventEmitter<number>();
 
