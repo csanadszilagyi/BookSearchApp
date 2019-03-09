@@ -10,4 +10,4 @@ In order to use it with unlimited api calls, you have to generate and give your 
   "googleBooksApiKey": "..."
 }
 
-This application is only using the "list" functionality of the books api, so no Oauth 2 is needed.
+This application is only using the "list" functionality of the books api, so no Oauth 2 is needed at all.
