@@ -12,7 +12,7 @@ import { isEmpty as _isEmpty } from 'lodash';
 })
 export class BooksApiService {
 
-  private readonly API_KEY            :string      = 'AIzaSyD5SWle5KdSPUq_4ve9HxamwNkqb0Byzqs';
+  private readonly API_KEY            :string      = '';
   private readonly API_URL            :string      = 'https://www.googleapis.com/books/v1/volumes';
   private readonly MAX_RESULTS        :number      = 40;
   private readonly RESPONSE_ITEMS     :string[]    = 
