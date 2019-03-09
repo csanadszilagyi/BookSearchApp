@@ -1,6 +1,6 @@
 # BookSearchApp
 
-Simple book search application that fetches book metadata from the Google Books API using Angular 7 and Bootstrap 4. The data is displayed by the virtual scroll component from Angular CDK, making the software performance friendly, in case of long lists as well.
+Simple book search application that fetches book metadata from the Google Books API using Angular 7 and Bootstrap 4. The data is displayed by the virtual scroll component from Angular CDK, making it performance friendly, in case of long lists as well.
 
 # Usage
 Clone and npm install.
