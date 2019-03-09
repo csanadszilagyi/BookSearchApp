@@ -1,3 +1,13 @@
 # BookSearchApp
 
-Simple book search application that fetches book metadata from the Google Books API using Angular 7. Displaying data with virtual scrolling from Angular CDK to make it performance friendly in case of long lists.
+Simple book search application that fetches book metadata from the Google Books API using Angular 7. Displaying data with virtual scroll component from Angular CDK to make it performance friendly in case of long lists.
+
+# Usage
+Clone and npm install.
+In order to use it with unlimited api calls, you have to generate and give your api key (API_KEY is attached for each request sent to Google Books API). Once you have the key, you need to copy it to the "src/assets/config/app_config.json" file in the "googleBooksApiKey" field.
+
+{
+  "googleBooksApiKey": "..."
+}
+
+This application is only using the "list" functionality of the books api, so no Oauth 2 is needed.
