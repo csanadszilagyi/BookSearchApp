@@ -1,38 +1,35 @@
 import { Component, OnInit, ElementRef, ChangeDetectorRef, 
-  ChangeDetectionStrategy, ViewEncapsulation, Input } from '@angular/core';
+  ChangeDetectionStrategy, Input } from '@angular/core';
 
 interface ImgState {
   loaded?: boolean;
-  visible?: boolean;
 }
 
 @Component({
   selector: 'app-thumb-img',
   templateUrl: './thumb-img.component.html',
-  styleUrls: ['./thumb-img.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
-  // encapsulation: ViewEncapsulation.ShadowDom
+  styleUrls: ['./thumb-img.component.scss']
 })
 export class ThumbImgComponent implements OnInit {
 
-  _src: string = '';
+  readonly NO_THUMB_IMG_SRC: string = 'assets/no_cover_thumb.jpg';
+
   @Input() alt: string = '';
 
-
+  _src: string = '';
+  
   @Input()
   set src(src: string) {
     this._src = (src && src.trim()) || '';
     if (!this._src.length) {
-      console.log('no src');
-      this.setState({visible: false});
+      this.NO_THUMB_IMG_SRC;
     }
   }
  
   get src(): string { return this._src; }
 
   private state: ImgState = {
-    loaded: false,
-    visible: false
+    loaded: false
   };
 
   constructor(private el: ElementRef, private cd: ChangeDetectorRef) {}
@@ -42,15 +39,15 @@ export class ThumbImgComponent implements OnInit {
 
   private setState(newState: ImgState) {
     this.state = {...this.state, ...newState};
-    this.cd.detectChanges();
   }
 
   onLoad(){
-    this.setState({loaded: true, visible: true});
+    this.setState({loaded: true});
   }
 
   onError() {
-    this.setState({loaded: true, visible: false});
+    this.src = this.NO_THUMB_IMG_SRC;
+    this.setState({loaded: true});
   }
 
 

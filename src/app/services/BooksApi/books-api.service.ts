@@ -2,45 +2,39 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, throwError, of } from 'rxjs';
 import { map, tap, catchError} from 'rxjs/operators';
-
 import { InputData, KeywordParams } from './data-structures';
 import { BookSerializer } from 'src/app/seralizer/BookSeralizer';
-
 import { Book } from '../../models/book.model';
-
 import { isEmpty as _isEmpty } from 'lodash';
-
 
 @Injectable({
   providedIn: 'root'
 })
 export class BooksApiService {
 
-  private serializer: BookSerializer = new BookSerializer();
-
-  private readonly API_KEY = 'AIzaSyD5SWle5KdSPUq_4ve9HxamwNkqb0Byzqs';
-
-  private readonly API_URL: string = 'https://www.googleapis.com/books/v1/volumes';
-
-  private readonly MAX_RESULTS: number = 40;
-
-  private keywordStr: string = '';
-
-  private responseItems: string[] = [
-        'volumeInfo/title', 
-        'volumeInfo/subtitle',
-        'volumeInfo/authors',
-        'volumeInfo/description',
-        'volumeInfo/publishedDate',
-        'volumeInfo/pageCount',
-        'volumeInfo/previewLink',
-        'volumeInfo/infoLink',
-        'volumeInfo/averageRating',
-        'volumeInfo/categories',
-        'volumeInfo/imageLinks/smallThumbnail'
+  private readonly API_KEY            :string      = 'AIzaSyD5SWle5KdSPUq_4ve9HxamwNkqb0Byzqs';
+  private readonly API_URL            :string      = 'https://www.googleapis.com/books/v1/volumes';
+  private readonly MAX_RESULTS        :number      = 40;
+  private readonly RESPONSE_ITEMS     :string[]    = 
+  [
+    'volumeInfo/title',
+    'volumeInfo/subtitle',
+    'volumeInfo/authors',
+    'volumeInfo/description',
+    'volumeInfo/publishedDate',
+    'volumeInfo/pageCount',
+    'volumeInfo/previewLink',
+    'volumeInfo/infoLink',
+    'volumeInfo/averageRating',
+    'volumeInfo/categories',
+    'volumeInfo/imageLinks/smallThumbnail'
   ];
 
-  readonly responseFieldsStr: string = `totalItems,items(${this.responseItems.join(',')})`;
+  // according to google books api
+  readonly RESPONSE_FIELDS_STR: string = `totalItems,items(${this.RESPONSE_ITEMS.join(',')})`;
+
+  private queryStr: string = '';
+  private bookConverter: BookSerializer = new BookSerializer();
 
   constructor(private http: HttpClient) { }
 
@@ -65,15 +59,13 @@ export class BooksApiService {
     return _isEmpty(mv) ? null : mv;
   }
 
-  // intitle:lord+inauthor:tolkien
+  // Returns like: inauthor:tolkien+intitle:lord
   protected buildStringKeywords(params: KeywordParams): string {
    const str = Object
     .keys(params)
     .map(key => `${key}:${params[key]}`)
     .join('+');
-
-    console.log(str);
-
+    // console.log(str);
     return str;
   }
 
@@ -87,13 +79,13 @@ export class BooksApiService {
       return false;
     }
 
-    this.keywordStr = this.buildStringKeywords(keywordParams);
+    this.queryStr = this.buildStringKeywords(keywordParams);
     return true;
   }
 
   list(startPosition: number = 0) : Observable<Book[]> {
-    if (!_isEmpty(this.keywordStr)) {
-      return this.search(this.keywordStr, startPosition);
+    if (!_isEmpty(this.queryStr)) {
+      return this.search(this.queryStr, startPosition);
     
     }
     return throwError('Could not generate query.');
@@ -105,7 +97,7 @@ export class BooksApiService {
   protected search(query: string, startPosition: number): Observable<any> {
     const params: HttpParams = new HttpParams()
       .set('q', query)
-      .set('fields', this.responseFieldsStr) // fields the response should contain
+      .set('fields', this.RESPONSE_FIELDS_STR) // fields the response should contain
       .set('startIndex', `${startPosition}`)
       .set('maxResults', `${this.MAX_RESULTS}`)
       .set('key', this.API_KEY);
@@ -117,18 +109,11 @@ export class BooksApiService {
           return books;
         }
         return [];
-      }),
-      catchError(error => this.handleError(error))
+      })
     );
   }
 
   private convertCollection(collection: any[]): Book[] {
-    return collection.map(item => this.serializer.fromJson(item));
-  }
-
-  private handleError(error: any): Observable<any> {
-    console.error(error);
-    // return throwError(error);
-    return of([]);
+    return collection.map(item => this.bookConverter.fromJson(item));
   }
 }

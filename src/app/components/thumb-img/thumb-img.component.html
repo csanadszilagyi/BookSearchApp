@@ -1,15 +1,4 @@
 <div class="thumb-img-wrapper align-self-center mr-3">
-
-    <ng-container *ngIf="!state.loaded || !state.visible">
-        <div class="bg d-flex justify-content-center">
-            <div *ngIf="!state.loaded" class="spinner-border spinner-border-sm" role="status ">
-                <span class="sr-only ">Loading...</span>
-            </div>
-        </div>
-    </ng-container>
-    <!-- <ng-container *ngIf="hasImage "> -->
-    <img [hidden]="!state.loaded || !state.visible" [src]="src " [alt]="alt " (load)="onLoad() " (error)="onError() ">
-
-    <!-- </ng-container> -->
+    <div *ngIf="!state.loaded" class="bg"></div>
+    <img [hidden]="!state.loaded" [src]="src" [alt]="alt" (load)="onLoad()" (error)="onError()">
 </div>
-<!-- {{ state.loaded }} -->

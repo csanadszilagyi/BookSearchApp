@@ -17,3 +17,12 @@ body {
         font-size: 12px;
     }
 }
+
+.prefix-line:before {
+    content: "\2014\00A0";
+    margin-left: 8px;
+}
+
+.more-placeholder {
+    margin-left: 3px;
+}

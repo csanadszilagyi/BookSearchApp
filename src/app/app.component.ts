@@ -1,12 +1,10 @@
 import { Component, OnInit, OnDestroy} from '@angular/core';
 import { BooksApiService } from './services/BooksApi/books-api.service';
 import { BehaviorSubject, empty, Subscription } from 'rxjs';
-import { mergeMap, throttleTime} from 'rxjs/operators';
-
-import { concat as _concat } from 'lodash';
-
-import { InputData} from './services/BooksApi/data-structures';
+import { mergeMap, throttleTime, tap} from 'rxjs/operators';
+import { InputData, InfoType, FormResult } from './services/BooksApi/data-structures';
 import { Book } from './models/book.model';
+import { LocalStorageService } from './services/local-storage/local-storage.service';
 
 @Component({
   selector: 'app-root',
@@ -16,14 +14,28 @@ import { Book } from './models/book.model';
 export class AppComponent implements OnInit, OnDestroy {
 
   searchInputData: InputData = new InputData();
-  theEnd: boolean = false;
-  loading: boolean = false;
+  noMoreData: boolean = false;
+  formSubmitted: boolean = false;
+  chunkLoading: boolean = false;
   offsetState$: BehaviorSubject<number> = new BehaviorSubject<number>(null);
   allBooks: Book[] = [];
-
   subscription: Subscription;
 
-  constructor(private booksService: BooksApiService ) {
+  formState: FormResult = {};
+
+  private clearFormState() {
+    this.formState = {
+      type: InfoType.NONE,
+      message: ''
+    };
+  }
+
+  private setFormState(newState: FormResult) {
+    this.formState = {...this.formState, ...newState };
+  }
+
+  constructor(private booksService: BooksApiService,
+              private storageService: LocalStorageService ) {
     
   }
 
@@ -31,7 +43,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.subscription = this.offsetState$.pipe(
       throttleTime(500),
       mergeMap(offset => {
-        // console.log(`offset: ${offset}`);
         if (offset === null){
           return empty();
         }
@@ -40,13 +51,25 @@ export class AppComponent implements OnInit, OnDestroy {
     )
     .subscribe(
       data => {
-        this.theEnd = !data.length;
-        this.loading = false;
-        if (!this.theEnd) {
+        this.noMoreData = !data.length;
+        if (this.noMoreData) {
+          if (this.formSubmitted) {
+            // if this was form search, and not a "pagination"
+            this.setFormState({type: InfoType.ERROR, message: 'No results were found for your search.'});
+          }
+        }
+        else {
           this.allBooks = this.allBooks.concat(data);
         }
+        this.stopLoading();
       },
-      err => console.log(err)
+      error => {
+        console.log(error);
+        this.setFormState({
+          type: InfoType.ERROR,
+          message: JSON.stringify(error)
+        });
+      }
     );
   }
 
@@ -54,7 +77,13 @@ export class AppComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
+  private stopLoading(): void {
+    this.chunkLoading = false;
+    this.formSubmitted = false;
+  }
+
   public paginatedSearch(startIndex) {
+    this.chunkLoading = true;
     this.offsetState$.next(startIndex);
   }
 
@@ -64,18 +93,28 @@ export class AppComponent implements OnInit, OnDestroy {
       .every(([k,v]) => v.trim() === '');
   }
 
+  private newSerach() {
+    this.clearFormState();
+    this.noMoreData = false;
+    this.formSubmitted = true;
+    this.allBooks = [];
+    // storing last expression to the local storage
+    this.storageService.store('lastSearch', this.searchInputData.toString());
+    this.offsetState$.next(0);
+  }
+
   public formSearch() {
     // only generate the new query string, if new search was performed.
     if (this.booksService.regenerateQuery(this.searchInputData)) {
       // new serach, so reinit variables
-      this.theEnd = false;
-      this.loading = true;
-      this.allBooks = [];
-      this.offsetState$.next(0);
+      this.newSerach();
       return;
     }
 
-    console.log('Query is empty. Please fill one of the input fields at least.');
+    this.setFormState({
+      type: InfoType.ERROR, 
+      message: 'Can not build query for searching. Please refill the input fields.'
+    });
     
   }
 }

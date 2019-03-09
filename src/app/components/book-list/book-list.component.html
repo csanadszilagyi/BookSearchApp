@@ -1,45 +1,51 @@
-<cdk-virtual-scroll-viewport itemSize="120" (scrolledIndexChange)="onIndexChanged($event, books.length)">
-    <!--  <ng-container > -->
-    <div class="card mb-3" *cdkVirtualFor="let book of books; let i = index; trackBy: trackByIndex">
-        <div class="row no-gutters">
-            <!--             <div class="col-md-1">
+<div class="container">
+    <div class="scroll-wrapper row">
+        <cdk-virtual-scroll-viewport class="col-12" itemSize="120" (scrolledIndexChange)="onIndexChanged($event, books.length)">
+            <div class="card mb-3" *cdkVirtualFor="let book of books; let i = index; trackBy: trackByIndex">
+                <div class="row no-gutters">
+                    <!--             <div class="col-md-1">
                 <h4>{{ i }}</h4>
             </div> -->
-            <div class="col-xl-1 col-md-2 col-sm-2 col-3">
+                    <div class="col-xl-1 col-md-2 col-sm-2 col-3">
 
-                <ng-container *ngIf="book.previewLink; then imgLink; else img">
-                </ng-container>
+                        <a *ngIf="book.previewLink;else img" target="_blank" href="{{ book.previewLink }}">
+                            <app-thumb-img [src]="book.smallThumbnailUrl" [alt]="'thumbnail'"></app-thumb-img>
+                        </a>
 
-                <ng-template #imgLink>
-                    <a target="_blank" href="{{ book.previewLink }}">
-                        <app-thumb-img [src]="book.smallThumbnailUrl" [alt]="'thumbnail'"></app-thumb-img>
-                    </a>
-                </ng-template>
+                        <ng-template #img>
+                            <app-thumb-img [src]="book.smallThumbnailUrl" [alt]="'thumbnail'"></app-thumb-img>
+                        </ng-template>
 
-                <ng-template #img>
-                    <app-thumb-img [src]="book.smallThumbnailUrl" [alt]="'thumbnail'"></app-thumb-img>
-                </ng-template>
-
-            </div>
-            <div class="col-xl-11 col-md-10 col-sm-10 col-9">
-                <div class="card-body">
-                    <h5 class="card-title">{{ book.title }}</h5>
-                    <h6 *ngIf="book.subtitle" class="subtitle font-italic font-weight-normal prefix-line">
-                        {{ book.subtitle }}
-                    </h6>
-                    <p class="card-text mb-0" *ngIf="book.description">
-                        {{ book.description | slice:0:MAX_DESC_LEN }}
-                        <span class="more-placeholder" *ngIf="book.description.length > MAX_DESC_LEN">...</span>
-                    </p>
-                    <p class="card-text">
-                        <a *ngIf="book.previewLink" target="_blank" href="{{ book.previewLink }}">Preview</a>
-                        <small class="text-muted prefix-line">
+                    </div>
+                    <div class="col-xl-11 col-md-10 col-sm-10 col-9">
+                        <div class="card-body">
+                            <a *ngIf="book.previewLink" target="_blank" href="{{ book.previewLink }}">
+                                <h5 class="card-title">{{ book.title }}</h5>
+                            </a>
+                            <h5 *ngIfElse></h5>
+                            <h6 *ngIf="book.subtitle" class="subtitle font-italic font-weight-normal prefix-line">
+                                {{ book.subtitle }}
+                            </h6>
+                            <p class="card-text mb-0" *ngIf="book.description">
+                                {{ book.description | slice:0:MAX_DESC_LEN }}
+                                <span class="more-placeholder" *ngIf="book.description.length > MAX_DESC_LEN">...</span>
+                            </p>
+                            <p class="card-text">
+                                <a *ngIf="book.previewLink" target="_blank" href="{{ book.previewLink }}">Preview</a>
+                                <small class="text-muted prefix-line">
                             {{ getInfos(book) }}
                         </small>
-                    </p>
+                            </p>
+                        </div>
+                    </div>
                 </div>
+            </div>
+
+        </cdk-virtual-scroll-viewport>
+        <div class="chunk-loader-wrapper" class="col-12 text-center pt-2 pb-2">
+            <div *ngIf="chunkLoading" class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
             </div>
         </div>
     </div>
-    <!-- </ng-container> -->
-</cdk-virtual-scroll-viewport>
+</div>
