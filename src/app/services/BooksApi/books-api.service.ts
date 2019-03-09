@@ -6,13 +6,12 @@ import { InputData, KeywordParams } from './data-structures';
 import { BookSerializer } from 'src/app/seralizer/BookSeralizer';
 import { Book } from '../../models/book.model';
 import { isEmpty as _isEmpty } from 'lodash';
+import { AppConfigService } from '../app-config/app-config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BooksApiService {
-
-  private readonly API_KEY            :string      = '';
   private readonly API_URL            :string      = 'https://www.googleapis.com/books/v1/volumes';
   private readonly MAX_RESULTS        :number      = 40;
   private readonly RESPONSE_ITEMS     :string[]    = 
@@ -100,7 +99,7 @@ export class BooksApiService {
       .set('fields', this.RESPONSE_FIELDS_STR) // fields the response should contain
       .set('startIndex', `${startPosition}`)
       .set('maxResults', `${this.MAX_RESULTS}`)
-      .set('key', this.API_KEY);
+      .set('key', AppConfigService.settings.googleBooksApiKey);
 
     return this.http.get<Book[]>(this.API_URL, {params}).pipe(
       map((data: any) => {

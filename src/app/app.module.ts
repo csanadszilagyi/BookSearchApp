@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -10,6 +10,11 @@ import { ThumbImgComponent } from './components/thumb-img/thumb-img.component';
 
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
+import { AppConfigService } from './services/app-config/app-config.service';
+
+export function initializeApp(appConfig: AppConfigService) {
+  return () => appConfig.load();
+}
 @NgModule({
   declarations: [
     AppComponent,
@@ -24,6 +29,10 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
     ScrollingModule
   ],
   providers: [
+      AppConfigService,
+      { provide: APP_INITIALIZER,
+        useFactory: initializeApp,
+        deps: [AppConfigService], multi: true }
   ],
   bootstrap: [AppComponent]
 })

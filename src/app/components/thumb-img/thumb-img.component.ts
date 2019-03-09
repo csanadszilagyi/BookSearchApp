@@ -12,7 +12,7 @@ interface ImgState {
 })
 export class ThumbImgComponent implements OnInit {
 
-  readonly NO_THUMB_IMG_SRC: string = 'assets/no_cover_thumb.jpg';
+  readonly NO_THUMB_IMG_SRC: string = 'assets/img/no_cover_thumb.jpg';
 
   @Input() alt: string = '';
 
