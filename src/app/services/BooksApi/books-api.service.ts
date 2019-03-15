@@ -37,7 +37,8 @@ export class BooksApiService {
 
   constructor(private http: HttpClient) { }
 
-  protected toQueryParamsData(searchData: InputData): KeywordParams {
+  // Converts search data to query string, that can be sent to google books api. Ignoring empty fields.
+  toQueryParamsData(searchData: InputData): KeywordParams {
     const mapped: KeywordParams = {
       inauthor: searchData.author, 
       intitle: searchData.title
@@ -59,7 +60,7 @@ export class BooksApiService {
   }
 
   // Returns like: inauthor:tolkien+intitle:lord
-  protected buildStringKeywords(params: KeywordParams): string {
+  buildStringKeywords(params: KeywordParams): string {
    const str = Object
     .keys(params)
     .map(key => `${key}:${params[key]}`)
@@ -72,7 +73,7 @@ export class BooksApiService {
     Returns true, if the keyword params object is not empty, else false. If not empty, new keyword string will be generated.
     Note: this will be genareted only, when new form search was performed.
   */
-  public regenerateQuery(input: InputData): boolean {
+  regenerateQuery(input: InputData): boolean {
     const keywordParams = this.toQueryParamsData(input);
     if (!keywordParams) {
       return false;
@@ -93,7 +94,7 @@ export class BooksApiService {
   /*
    * Get list
   */
-  protected search(query: string, startPosition: number): Observable<any> {
+  search(query: string, startPosition: number): Observable<any> {
     const params: HttpParams = new HttpParams()
       .set('q', query)
       .set('fields', this.RESPONSE_FIELDS_STR) // fields the response should contain

@@ -1,7 +1,7 @@
 <div class="container">
     <div class="scroll-wrapper row">
         <cdk-virtual-scroll-viewport class="col-12" itemSize="120" (scrolledIndexChange)="onIndexChanged($event, books.length)">
-            <div class="card mb-3" *cdkVirtualFor="let book of books; let i = index; trackBy: trackByIndex">
+            <div class="card mb-3 animated fadeIn" *cdkVirtualFor="let book of books; let i = index; trackBy: trackByIndex">
                 <div class="row no-gutters">
                     <!--             <div class="col-md-1">
                 <h4>{{ i }}</h4>
@@ -33,8 +33,8 @@
                             <p class="card-text">
                                 <a *ngIf="book.previewLink" target="_blank" href="{{ book.previewLink }}">Preview</a>
                                 <small class="text-muted prefix-line">
-                            {{ getInfos(book) }}
-                        </small>
+                                    {{ getInfos(book) }}
+                                </small>
                             </p>
                         </div>
                     </div>
