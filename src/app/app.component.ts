@@ -63,18 +63,28 @@ export class AppComponent implements OnInit, OnDestroy {
         }
         this.stopLoading();
       },
-      error => {
-        console.log(error);
-        this.setFormState({
-          type: InfoType.ERROR,
-          message: JSON.stringify(error)
-        });
-      }
+      error => this.handleError(error)
     );
   }
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
+  }
+
+  private handleError(error: any) {
+    console.log(error.message);
+    let message = error.message;
+    if (error.status === 0) {
+      message = 'Error 503 - Service Unaviable. Please check your connection.'
+    }
+
+    this.setFormState({
+      type: InfoType.ERROR,
+      message
+    });
+
+    this.stopLoading();
+        
   }
 
   private stopLoading(): void {

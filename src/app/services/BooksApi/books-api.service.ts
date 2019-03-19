@@ -1,41 +1,31 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, throwError, of } from 'rxjs';
-import { map, tap, catchError} from 'rxjs/operators';
+import { map, tap, catchError, retry} from 'rxjs/operators';
 import { InputData, KeywordParams } from './data-structures';
 import { BookSerializer } from 'src/app/seralizer/BookSeralizer';
 import { Book } from '../../models/book.model';
 import { isEmpty as _isEmpty } from 'lodash';
-import { AppConfigService } from '../app-config/app-config.service';
+import { AppConfigService, BooksApiServiceData } from '../app-config/app-config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BooksApiService {
-  private readonly API_URL            :string      = 'https://www.googleapis.com/books/v1/volumes';
-  private readonly MAX_RESULTS        :number      = 40;
-  private readonly RESPONSE_ITEMS     :string[]    = 
-  [
-    'volumeInfo/title',
-    'volumeInfo/subtitle',
-    'volumeInfo/authors',
-    'volumeInfo/description',
-    'volumeInfo/publishedDate',
-    'volumeInfo/pageCount',
-    'volumeInfo/previewLink',
-    'volumeInfo/infoLink',
-    'volumeInfo/averageRating',
-    'volumeInfo/categories',
-    'volumeInfo/imageLinks/smallThumbnail'
-  ];
 
   // according to google books api
-  readonly RESPONSE_FIELDS_STR: string = `totalItems,items(${this.RESPONSE_ITEMS.join(',')})`;
-
+  
   private queryStr: string = '';
   private bookConverter: BookSerializer = new BookSerializer();
+  
+  private config: BooksApiServiceData;
+  private responseFieldsQuery: string;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    this.config = AppConfigService.settings.booksService;
+    // console.log(this.config);
+    this.responseFieldsQuery = `totalItems,items(${this.config.responseItems.join(',')})`;
+  }
 
   // Converts search data to query string, that can be sent to google books api. Ignoring empty fields.
   toQueryParamsData(searchData: InputData): KeywordParams {
@@ -95,21 +85,16 @@ export class BooksApiService {
    * Get list
   */
   search(query: string, startPosition: number): Observable<any> {
+    // const config = AppConfigService.settings.booksApiConfig;
     const params: HttpParams = new HttpParams()
       .set('q', query)
-      .set('fields', this.RESPONSE_FIELDS_STR) // fields the response should contain
+      .set('fields', this.responseFieldsQuery) // fields the response should contain
       .set('startIndex', `${startPosition}`)
-      .set('maxResults', `${this.MAX_RESULTS}`)
-      .set('key', AppConfigService.settings.googleBooksApiKey);
+      .set('maxResults', `${this.config.maxItemsInResponse}`)
+      .set('key', this.config.apiKey);
 
-    return this.http.get<Book[]>(this.API_URL, {params}).pipe(
-      map((data: any) => {
-        if (data.items) {
-          const books = this.convertCollection(data.items);
-          return books;
-        }
-        return [];
-      })
+    return this.http.get<Book[]>(this.config.apiUrl, {params}).pipe(
+      map((data: any) => data.items ? this.convertCollection(data.items) : [])
     );
   }
 

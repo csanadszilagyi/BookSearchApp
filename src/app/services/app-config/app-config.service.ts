@@ -1,9 +1,18 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
+import { BooksApiService } from '../BooksApi/books-api.service';
+import { RouteConfigLoadStart } from '@angular/router';
 
-interface ConfigData {
-  googleBooksApiKey: string;
+export interface BooksApiServiceData {
+  apiKey: string;
+  apiUrl: string;
+  maxItemsInResponse: number;
+  responseItems: string[];
+}
+
+export interface ConfigData {
+  booksService: BooksApiServiceData
 }
 
 @Injectable({
@@ -15,14 +24,23 @@ export class AppConfigService {
 
   constructor(private http: HttpClient ) {}
 
-  public load() {
-    this.http.get<ConfigData>('assets/config/app_config.json').pipe(
-      tap( data => {
-        console.log(data);
+  public load(): Promise<any> {
+    
+   return new Promise((resolve, reject) => {
+      this.http.get<ConfigData>('assets/config/app_config.json')
+      .toPromise()
+        .then(d =>resolve(d))
+        .catch(err => reject(err))
       })
-    )
-    .subscribe(data => {
-      AppConfigService.settings = data;
-    });
+      .then(
+        (data: ConfigData) => {        
+          AppConfigService.settings = data;
+          // console.log(AppConfigService.settings);
+        })
+      .catch(err => {
+        console.log(err);
+      });
+    
+    
   }
 }

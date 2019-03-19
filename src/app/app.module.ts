@@ -15,6 +15,7 @@ import { AppConfigService } from './services/app-config/app-config.service';
 export function initializeApp(appConfig: AppConfigService) {
   return () => appConfig.load();
 }
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -30,9 +31,11 @@ export function initializeApp(appConfig: AppConfigService) {
   ],
   providers: [
       AppConfigService,
-      { provide: APP_INITIALIZER,
+      { 
+        provide: APP_INITIALIZER,
         useFactory: initializeApp,
-        deps: [AppConfigService], multi: true }
+        deps: [AppConfigService], multi: true 
+      }
   ],
   bootstrap: [AppComponent]
 })
