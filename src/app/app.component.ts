@@ -75,7 +75,7 @@ export class AppComponent implements OnInit, OnDestroy {
     console.log(error.message);
     let message = error.message;
     if (error.status === 0) {
-      message = 'Error 503 - Service Unaviable. Please check your connection.'
+      message = 'Error 503 - Service Unavailable. Please check your connection.'
     }
 
     this.setFormState({

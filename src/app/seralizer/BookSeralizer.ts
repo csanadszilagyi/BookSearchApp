@@ -10,7 +10,7 @@ export class BookSerializer implements ISerializer<Book>{
             vol.title || '',
             vol.subtitle || '',
             (vol.authors && vol.authors.join(', ')) || '',                      // can be more, than 1 authors               
-            '', // vol.description || '',
+            vol.description || '',
             isNaN(dateYear) ? '' : dateYear.toString(),         // only need the year from date
             vol.pageCount || null,
             vol.previewLink || '',
@@ -22,7 +22,7 @@ export class BookSerializer implements ISerializer<Book>{
     }
 
     // no need
-    toJson(obj: Book): any {
+    toJson(obj: Book): string {
         return JSON.stringify(obj);
     }
 }

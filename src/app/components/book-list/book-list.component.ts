@@ -12,7 +12,9 @@ import { join as _join} from 'lodash';
 })
 export class BookListComponent {
 
-  readonly MAX_DESC_LEN: number = 60; // maxium allowed number of caharacters to be shown in the description (if exists)
+  readonly MAX_SUBTITLE_LEN: number = 90;
+  readonly MAX_AUTHORS_LEN: number  = 90;
+  readonly MAX_DESC_LEN: number     = 60; // maxium allowed number of caharacters to be shown in the description (if exists)
 
   @Input() books: Book[];
   @Input() chunkLoading: boolean;
@@ -47,12 +49,12 @@ export class BookListComponent {
 
   // Some concated display information to be shown. New properties can be easily added.
   getInfos(book: Book): string {
-    // return book.publishedDate; 
+    const authors =  book.authors.length <= this.MAX_AUTHORS_LEN ? book.authors : book.authors.slice(0, this.MAX_DESC_LEN) + '... ';
     return [
-      book.authors,
+      authors,
       book.publishedDate
-    ].filter(v => v !== '')
+    ]
+    .filter(v => v !== '')
     .join(' - ');
-
   }
 }

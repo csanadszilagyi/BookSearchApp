@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, throwError, of } from 'rxjs';
-import { map, tap, catchError, retry} from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { InputData, KeywordParams } from './data-structures';
 import { BookSerializer } from 'src/app/seralizer/BookSeralizer';
 import { Book } from '../../models/book.model';
@@ -29,6 +29,36 @@ export class BooksApiService {
 
   // Converts search data to query string, that can be sent to google books api. Ignoring empty fields.
   toQueryParamsData(searchData: InputData): KeywordParams {
+
+    /*
+    const mapConfig = [
+      ['inauthor', 'author'],
+      ['intitle', 'title']
+    ];
+
+    let t: keyof InputData;
+    t = 'author';
+    
+    let obj = mapConfig
+      .filter(([k,v]) => searchData.hasOwnProperty(v) && searchData[v].trim() !== '')
+      .map(([k,v]) => {
+          return ({[k]: searchData[v].trim()})
+      })
+      .reduce((acc, v) => {
+         return {...acc, ...v}
+      });
+
+    console.log(obj);
+    */
+      /*
+    let obj = {};
+    mapConfig.forEach(([k, v]) => {
+      obj = {...obj, [k]: searchData[v]}
+      
+    });
+    */
+
+
     const mapped: KeywordParams = {
       inauthor: searchData.author, 
       intitle: searchData.title
@@ -51,12 +81,12 @@ export class BooksApiService {
 
   // Returns like: inauthor:tolkien+intitle:lord
   buildStringKeywords(params: KeywordParams): string {
-   const str = Object
-    .keys(params)
-    .map(key => `${key}:${params[key]}`)
-    .join('+');
-    // console.log(str);
-    return str;
+    const str = Object
+      .keys(params)
+      .map(key => `${key}:${params[key]}`)
+      .join('+');
+      // console.log(str);
+      return str;
   }
 
   /*

@@ -19,17 +19,25 @@
                     </div>
                     <div class="col-xl-11 col-md-10 col-sm-10 col-9">
                         <div class="card-body">
+
+                            <!--  <button type="button" class="btn btn-secondary" data-container="body" data-toggle="popover" data-placement="top" data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus.">
+                                Popover on top
+                            </button> -->
+
                             <a *ngIf="book.previewLink" target="_blank" href="{{ book.previewLink }}">
                                 <h5 class="card-title">{{ book.title }}</h5>
                             </a>
-                            <h5 *ngIfElse></h5>
+                            <h5 *ngIfElse class="card-title">{{ book.title }}</h5>
                             <h6 *ngIf="book.subtitle" class="subtitle font-italic font-weight-normal prefix-line">
-                                {{ book.subtitle }}
+                                {{ book.subtitle | slice:0:MAX_SUBTITLE_LEN }}
+                                <span class="more-placeholder" *ngIf="book.subtitle.length > MAX_SUBTITLE_LEN">...</span>
                             </h6>
+                            <!--                         
                             <p class="card-text mb-0" *ngIf="book.description">
                                 {{ book.description | slice:0:MAX_DESC_LEN }}
                                 <span class="more-placeholder" *ngIf="book.description.length > MAX_DESC_LEN">...</span>
-                            </p>
+                            </p> 
+                            -->
                             <p class="card-text">
                                 <a *ngIf="book.previewLink" target="_blank" href="{{ book.previewLink }}">Preview</a>
                                 <small class="text-muted prefix-line">
